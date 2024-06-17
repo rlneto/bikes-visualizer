@@ -40,9 +40,9 @@ const App: React.FC = () => {
       onMouseMove={handleMouseMove}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      style={{ width: `${imageSize * 15}px`, height: `${imageSize * 15}px`, overflow: 'hidden', margin: 'auto' }}
+      style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100vw', height: '100vh', overflow: 'hidden', margin: 'auto' }}
     >
-      {image && <img src={image} alt="Matrix View" style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={(e) => { e.currentTarget.src = '/path/to/fallback/image.jpg'; }} />}
+      {image && <img src={image} alt="Matrix View" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} onError={(e) => { e.currentTarget.src = '/path/to/fallback/image.jpg'; }} />}
     </div>
   );
 };
