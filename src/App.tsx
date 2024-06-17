@@ -6,16 +6,51 @@ const App: React.FC = () => {
 
   const centerImage = '007_007.jpg';
   const imagePath = '/bikes/';
-  const imageSize = 100;
+  const imageSize = 100; // Assuming each image is 100x100 pixels
 
   useEffect(() => {
     loadImage(centerImage);
+    preloadImages();
   }, []);
 
   const loadImage = useCallback((imageName: string) => {
-    const imageUrl = `${imagePath}${imageName}`;
-    setImage(imageUrl);
+    const cachedImage = localStorage.getItem(imageName);
+    if (cachedImage) {
+      setImage(cachedImage);
+    } else {
+      const imageUrl = `${imagePath}${imageName}`;
+      fetch(imageUrl)
+        .then(response => response.blob())
+        .then(blob => {
+          const url = URL.createObjectURL(blob);
+          localStorage.setItem(imageName, url);
+          setImage(url);
+        })
+        .catch(error => {
+          console.error('Error loading image:', error);
+        });
+    }
   }, []);
+
+  const preloadImages = () => {
+    for (let i = 0; i <= 14; i++) {
+      for (let j = 0; j <= 14; j++) {
+        const imageName = `${i.toString().padStart(3, '0')}_${j.toString().padStart(3, '0')}.jpg`;
+        if (!localStorage.getItem(imageName)) {
+          const imageUrl = `${imagePath}${imageName}`;
+          fetch(imageUrl)
+            .then(response => response.blob())
+            .then(blob => {
+              const url = URL.createObjectURL(blob);
+              localStorage.setItem(imageName, url);
+            })
+            .catch(error => {
+              console.error('Error preloading image:', error);
+            });
+        }
+      }
+    }
+  };
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if (isMouseDown) {
