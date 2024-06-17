@@ -6,51 +6,16 @@ const App: React.FC = () => {
 
   const centerImage = '007_007.jpg';
   const imagePath = '/bikes/';
-  const imageSize = 100; // Assuming each image is 100x100 pixels
+  const imageSize = 100;
 
   useEffect(() => {
     loadImage(centerImage);
-    preloadImages();
   }, []);
 
   const loadImage = useCallback((imageName: string) => {
-    const cachedImage = localStorage.getItem(imageName);
-    if (cachedImage) {
-      setImage(cachedImage);
-    } else {
-      const imageUrl = `${imagePath}${imageName}`;
-      fetch(imageUrl)
-        .then(response => response.blob())
-        .then(blob => {
-          const url = URL.createObjectURL(blob);
-          localStorage.setItem(imageName, url);
-          setImage(url);
-        })
-        .catch(error => {
-          console.error('Error loading image:', error);
-        });
-    }
+    const imageUrl = `${imagePath}${imageName}`;
+    setImage(imageUrl);
   }, []);
-
-  const preloadImages = () => {
-    for (let i = 0; i <= 14; i++) {
-      for (let j = 0; j <= 14; j++) {
-        const imageName = `${i.toString().padStart(3, '0')}_${j.toString().padStart(3, '0')}.jpg`;
-        if (!localStorage.getItem(imageName)) {
-          const imageUrl = `${imagePath}${imageName}`;
-          fetch(imageUrl)
-            .then(response => response.blob())
-            .then(blob => {
-              const url = URL.createObjectURL(blob);
-              localStorage.setItem(imageName, url);
-            })
-            .catch(error => {
-              console.error('Error preloading image:', error);
-            });
-        }
-      }
-    }
-  };
 
   const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
     if (isMouseDown) {
@@ -75,9 +40,9 @@ const App: React.FC = () => {
       onMouseMove={handleMouseMove}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
-      style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100vw', height: '100vh', overflow: 'hidden', margin: 'auto' }}
+      style={{ width: `${imageSize * 15}px`, height: `${imageSize * 15}px`, overflow: 'hidden', margin: 'auto' }}
     >
-      {image && <img src={image} alt="Matrix View" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} onError={(e) => { e.currentTarget.src = '/path/to/fallback/image.jpg'; }} />}
+      {image && <img src={image} alt="Matrix View" style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={(e) => { e.currentTarget.src = '/path/to/fallback/image.jpg'; }} />}
     </div>
   );
 };
