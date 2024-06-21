@@ -7,19 +7,20 @@ const App: React.FC = () => {
   const centerImage = '007_007.jpg';
   const imagePath = '/bikes/';
   const imageSize = 100;
-
-  useEffect(() => {
-    loadImage(centerImage);
-  }, []);
-
+  
   const loadImage = useCallback((imageName: string) => {
     const imageUrl = `${imagePath}${imageName}`;
     setImage(imageUrl);
   }, []);
 
-  const handleMouseMove = useCallback((event: React.MouseEvent<HTMLDivElement>) => {
+  useEffect(() => {
+    loadImage(centerImage);
+  }, [loadImage]);
+
+  const handleMove = useCallback((event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
     if (isMouseDown) {
-      const { clientX, clientY } = event;
+      const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+      const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
       const i = Math.min(Math.max(Math.floor(clientX / imageSize), 0), 14).toString().padStart(3, '0');
       const j = Math.min(Math.max(Math.floor(clientY / imageSize), 0), 14).toString().padStart(3, '0');
       const imageName = `${i}_${j}.jpg`;
@@ -27,19 +28,24 @@ const App: React.FC = () => {
     }
   }, [isMouseDown, loadImage]);
 
-  const handleMouseDown = () => {
+  const handleDown = (event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) => {
+    if ('button' in event && event.button !== 0) return;
+    event.preventDefault();
     setIsMouseDown(true);
   };
 
-  const handleMouseUp = () => {
+  const handleUp = () => {
     setIsMouseDown(false);
   };
 
   return (
     <div
-      onMouseMove={handleMouseMove}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
+      onMouseMove={handleMove}
+      onMouseDown={handleDown}
+      onMouseUp={handleUp}
+      onTouchMove={handleMove}
+      onTouchStart={handleDown}
+      onTouchEnd={handleUp}
       style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100vw', height: '100vh', overflow: 'hidden', margin: 'auto' }}
     >
       {image && <img src={image} alt="Matrix View" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} onError={(e) => { e.currentTarget.src = '/path/to/fallback/image.jpg'; }} />}
