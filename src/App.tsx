@@ -71,7 +71,31 @@ const App: React.FC = () => {
 	);
 
 	useEffect(() => {
-		window.addEventListener("deviceorientation", handleOrientation);
+		const requestPermission = async () => {
+			if (
+				typeof (DeviceOrientationEvent as any).requestPermission ===
+				"function"
+			) {
+				try {
+					const permissionState = await (
+						DeviceOrientationEvent as any
+					).requestPermission();
+					if (permissionState === "granted") {
+						window.addEventListener(
+							"deviceorientation",
+							handleOrientation
+						);
+					}
+				} catch (error) {
+					console.error("Erro ao tentar obter permissão:", error);
+				}
+			} else {
+				window.addEventListener("deviceorientation", handleOrientation);
+			}
+		};
+
+		requestPermission();
+
 		return () => {
 			window.removeEventListener("deviceorientation", handleOrientation);
 		};
