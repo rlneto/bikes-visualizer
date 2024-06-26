@@ -51,6 +51,32 @@ const App: React.FC = () => {
 		setIsMouseDown(false);
 	};
 
+	const handleOrientation = useCallback(
+		(event: DeviceOrientationEvent) => {
+			const { beta, gamma } = event; // beta is front-to-back tilt in degrees (0-180), gamma is left-to-right tilt (-90 to 90)
+			if (beta !== null && gamma !== null) {
+				const x = ((gamma + 90) / 180) * imageSize;
+				const y = ((beta + 180) / 360) * imageSize;
+				const i = Math.min(Math.max(Math.floor(x / imageSize), 0), 14)
+					.toString()
+					.padStart(3, "0");
+				const j = Math.min(Math.max(Math.floor(y / imageSize), 0), 14)
+					.toString()
+					.padStart(3, "0");
+				const imageName = `${i}_${j}.jpg`;
+				loadImage(imageName);
+			}
+		},
+		[loadImage, imageSize]
+	);
+
+	useEffect(() => {
+		window.addEventListener("deviceorientation", handleOrientation);
+		return () => {
+			window.removeEventListener("deviceorientation", handleOrientation);
+		};
+	}, [handleOrientation]);
+
 	return (
 		<div
 			onMouseMove={handleMove}
@@ -76,7 +102,7 @@ const App: React.FC = () => {
 						objectFit: "contain",
 					}}
 					onError={(e) => {
-						e.currentTarget.src = "/path/to/fallback/image.jpg";
+						e.currentTarget.src = "404.jpg";
 					}}
 				/>
 			)}
